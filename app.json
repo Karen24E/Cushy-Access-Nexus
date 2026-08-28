@@ -1,0 +1,22 @@
+{
+  "expo": {
+    "name": "Cushy Access Nexus",
+    "slug": "cushy-access-nexus",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "cushyaccessnexus",
+    "userInterfaceStyle": "light",
+    "plugins": [
+      "expo-router",
+      "expo-secure-store"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#4C1D95"
+      }
+    }
+  }
+}

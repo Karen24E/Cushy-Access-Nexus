@@ -1,0 +1,36 @@
+{
+  "name": "cushy-access-nexus",
+  "version": "2.0.0",
+  "private": true,
+  "main": "expo-router/entry",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "typecheck": "tsc --noEmit",
+    "backend:install": "npm --prefix backend install",
+    "backend:dev": "npm --prefix backend run dev",
+    "backend:start": "npm --prefix backend start",
+    "backend:typecheck": "npm --prefix backend run typecheck",
+    "backend:seed": "npm --prefix backend run seed",
+    "set:lan": "node scripts/set-lan.js"
+  },
+  "dependencies": {
+    "@expo/vector-icons": "^14.1.0",
+    "@react-navigation/native": "^7.1.6",
+    "expo": "~54.0.35",
+    "expo-router": "~6.0.24",
+    "react": "19.1.0",
+    "react-native": "0.81.5",
+    "react-native-maps": "1.20.1",
+    "react-native-safe-area-context": "~5.6.0",
+    "react-native-screens": "~4.16.0",
+    "socket.io-client": "^4.8.1",
+    "expo-secure-store": "~15.0.7"
+  },
+  "devDependencies": {
+    "@types/react": "~19.1.10",
+    "typescript": "~5.9.2"
+  }
+}

@@ -1,0 +1,15 @@
+import { useState } from 'react';
+import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useAuth } from '@/src/auth/AuthProvider';
+import { colors } from '@/src/theme/colors';
+
+export default function LoginScreen() {
+  const { signIn } = useAuth(); const router = useRouter();
+  const [email,setEmail]=useState('admin@cushyaccess.com'); const [password,setPassword]=useState('Nexus@2026'); const [busy,setBusy]=useState(false); const [error,setError]=useState('');
+  const submit = async () => { try { setBusy(true); setError(''); await signIn(email.trim(), password); router.replace('/(tabs)'); } catch(e) { setError(e instanceof Error ? e.message : 'Unable to sign in'); } finally { setBusy(false); } };
+  return <SafeAreaView style={styles.safe}><View style={styles.hero}><View style={styles.logo}><Ionicons name="pulse" size={28} color={colors.ink}/></View><Text style={styles.brand}>CUSHY ACCESS</Text><Text style={styles.title}>Nexus</Text><Text style={styles.subtitle}>Operational intelligence and command center</Text></View><View style={styles.card}><Text style={styles.label}>EMAIL</Text><TextInput autoCapitalize="none" keyboardType="email-address" value={email} onChangeText={setEmail} style={styles.input}/><Text style={[styles.label,{marginTop:16}]}>PASSWORD</Text><TextInput secureTextEntry value={password} onChangeText={setPassword} style={styles.input}/>{error ? <Text style={styles.error}>{error}</Text> : null}<Pressable disabled={busy} onPress={submit} style={styles.button}><Text style={styles.buttonText}>{busy ? 'SIGNING IN…' : 'SIGN IN'}</Text><Ionicons name="arrow-forward" size={18} color={colors.ink}/></Pressable><Text style={styles.helper}>Demo administrator: admin@cushyaccess.com · Nexus@2026</Text></View></SafeAreaView>
+}
+const styles=StyleSheet.create({safe:{flex:1,backgroundColor:colors.purple900,padding:16,justifyContent:'center'},hero:{alignItems:'center',marginBottom:22},logo:{width:64,height:64,borderRadius:22,backgroundColor:colors.yellow,alignItems:'center',justifyContent:'center'},brand:{marginTop:14,color:'#EEDFFF',fontSize:10,fontWeight:'900',letterSpacing:2},title:{color:colors.surface,fontSize:38,fontWeight:'900',marginTop:2},subtitle:{color:'#D7C5E8',fontSize:11,marginTop:4},card:{backgroundColor:colors.surface,borderRadius:24,padding:18},label:{fontSize:9,fontWeight:'900',color:colors.slate,letterSpacing:1},input:{marginTop:7,borderWidth:1,borderColor:colors.border,borderRadius:13,paddingHorizontal:13,paddingVertical:12,fontSize:13,color:colors.ink,backgroundColor:'#FCFBFE'},button:{marginTop:18,backgroundColor:colors.yellow,borderRadius:13,padding:13,alignItems:'center',justifyContent:'center',flexDirection:'row',gap:8},buttonText:{fontSize:11,fontWeight:'900',color:colors.ink,letterSpacing:1},helper:{marginTop:12,color:colors.muted,fontSize:9,lineHeight:14,textAlign:'center'},error:{marginTop:10,color:colors.danger,fontSize:10,fontWeight:'700'}})
