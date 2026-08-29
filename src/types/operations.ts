@@ -11,3 +11,50 @@ export interface Order {
 }
 export interface ServiceHealth { id?: string; name: string; status: 'operational' | 'degraded' | 'outage'; latency_ms: number; error_rate: number; updated_at?: string; }
 export interface DashboardPayload { metrics: Metric[]; slaHealth: number; alerts: AlertItem[]; services: ServiceHealth[]; }
+
+// New backend API types
+export interface CategoryData {
+  category: string;
+  revenue: number;
+  itemsSold: number;
+  uniqueProducts: number;
+}
+
+export interface OverviewData {
+  orders: {
+    pending: number;
+    inProgress: number;
+    completed: number;
+    cancelled: number;
+    totalToday: number;
+  };
+  riders: {
+    online: number;
+    active: number;
+    total: number;
+  };
+  stores: {
+    active: number;
+    suspended: number;
+    total: number;
+  };
+  system: {
+    apiResponseTime: string;
+    errorRate: string;
+    databaseHealth: boolean;
+  };
+}
+
+export interface ProductsData {
+  allTime: {
+    total: number;
+    available: number;
+    unavailable: number;
+    discounted: number;
+  };
+  today: {
+    sold: number;
+    uniqueSold: number;
+    revenue: number;
+  };
+}

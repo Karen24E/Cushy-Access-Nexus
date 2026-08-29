@@ -1,4 +1,4 @@
-import type { DashboardPayload, Order, Rider, Vertical } from '@/src/types/operations';
+import type { DashboardPayload, Order, Rider, Vertical, CategoryData, OverviewData, ProductsData } from '@/src/types/operations';
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 let accessToken: string | null = null;
@@ -10,7 +10,7 @@ export function getApiUrl() {
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(`${getApiUrl()}${path}`, { headers: { 'Content-Type': 'application/json', ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}), ...(init?.headers ?? {}) }, ...init });
+  const response = await fetch(`${getApiUrl()}${path}`, { headers: { 'Content-Type': 'application/json', ...(init?.headers ?? {}) }, ...init });
   if (!response.ok) { const body = await response.json().catch(() => ({})); throw new Error(body.error ?? `Request failed (${response.status})`); }
   return response.json();
 }
@@ -34,6 +34,19 @@ export async function assignOrder(orderId: string, riderId: string) {
 
 export async function updateOrderStatus(orderId: string, status: string) {
   return request(`/api/orders/${orderId}/status`, { method: 'PATCH', body: JSON.stringify({ status }) });
+}
+
+// New backend API functions
+export async function fetchCategories(): Promise<CategoryData[]> {
+  return request<CategoryData[]>('/monitoring/operations/products/categories');
+}
+
+export async function fetchOverview(): Promise<OverviewData> {
+  return request<OverviewData>('/monitoring/operations/overview');
+}
+
+export async function fetchProducts(): Promise<ProductsData> {
+  return request<ProductsData>('/monitoring/operations/products');
 }
 
 import type { AuthUser, Session } from '@/src/types/auth';

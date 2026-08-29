@@ -2,9 +2,9 @@
 
 Unified independent operations, monitoring and infrastructure command platform for Cushy Access.
 
-## What is merged here?
+## What is this?
 
-This repository combines the latest **Command Center** and **Nexus Operations** work into one Expo application and one backend. You should use this folder as the single VS Code workspace going forward.
+This repository contains the **Cushy Access Nexus** mobile application - a unified operations command platform that connects to an external backend API.
 
 ### Mobile modules
 
@@ -12,16 +12,15 @@ This repository combines the latest **Command Center** and **Nexus Operations** 
 - **Operations** — shared workspace shell for Q-Commerce, Healthtech, Foodtech and Logistics
 - **Orders** — live order queue and dispatch workflows
 - **Alerts** — operational alerts
+- **Incidents** — incident tracking and management
 - **More** — platform navigation
 
-### Backend
+### External Backend Integration
 
-- Express + TypeScript REST API
-- PostgreSQL persistence
-- Socket.IO event stream
-- Orders, riders, alerts, services and dashboard endpoints
-- Authenticated upstream event ingestion via `POST /api/events`
-- Local rider/event simulator for development
+- Connects to external backend API via `EXPO_PUBLIC_API_URL`
+- Socket.IO client for real-time updates
+- JWT authentication support
+- REST API integration for orders, riders, alerts, incidents
 
 ## Repository structure
 
@@ -29,7 +28,7 @@ This repository combines the latest **Command Center** and **Nexus Operations** 
 cushy-access-nexus/
 ├── app/                    # Expo Router screens
 ├── src/                    # shared React Native components, API, sockets, theme
-├── backend/                # API, PostgreSQL, WebSocket/event layer
+├── scripts/                # Utility scripts (LAN setup)
 ├── app.json
 ├── package.json
 └── README.md
@@ -46,19 +45,6 @@ The two modules are now in the same app and share:
 - the same royal-purple, white and yellow design system
 
 No back-and-forth between separate projects is required.
-
-## Start the backend
-
-```bash
-cd backend
-docker compose up -d
-copy .env.example .env
-npm install
-npm run seed
-npm run dev
-```
-
-API: `http://localhost:4000`
 
 ## Start the mobile app
 
@@ -82,35 +68,22 @@ The phone and PC must be on the same network and Windows Firewall must allow TCP
 
 ```bash
 npm run typecheck
-npm run backend:typecheck
-npm run backend:dev
-npm run backend:seed
 ```
 
-## Git
+## Authentication & RBAC
 
-Initialize this folder as the single Nexus repository:
+The mobile application includes an Incident Center and authentication/RBAC layer.
 
-```bash
-git init
-git add .
-git commit -m "Merge Command Center and Operations"
-```
-
-Then connect the root folder to your GitHub repository and push `main`.
-
-## Nexus Incident & Monitoring + Authentication/RBAC
-
-This unified build now includes an Incident Center and authentication/RBAC layer inside the same mobile application.
-
-### Demo credentials
+### Demo credentials (for external backend)
 - super_admin: admin@cushyaccess.com / Nexus@2026
 - operations_manager: ops@cushyaccess.com / Nexus@2026
 - dispatcher: dispatch@cushyaccess.com / Nexus@2026
 - analyst: analyst@cushyaccess.com / Nexus@2026
 - viewer: viewer@cushyaccess.com / Nexus@2026
 
-Change all demo credentials before production. Set a strong `JWT_SECRET` in the backend environment.
+*Note: These credentials are examples - configure credentials that match your external backend.*
+
+Configure your external backend credentials in the `.env` file with `EXPO_PUBLIC_API_URL`.
 
 ### Role model
 - `super_admin`: full platform access
@@ -119,16 +92,16 @@ Change all demo credentials before production. Set a strong `JWT_SECRET` in the 
 - `analyst`: monitoring and analytics read access
 - `viewer`: read-only command center/monitoring
 
-### New API
-- `POST /api/auth/login`
-- `GET /api/auth/me`
-- `GET /api/incidents`
-- `POST /api/incidents`
-- `PATCH /api/incidents/:id/status`
-- `PATCH /api/incidents/:id/assign`
-- `GET /api/incidents/:id/events`
+### API Integration
+The mobile app expects these standard API endpoints from your external backend:
+- Authentication: `POST /api/auth/login`, `GET /api/auth/me`
+- Incidents: `GET /api/incidents`, `POST /api/incidents`, `PATCH /api/incidents/:id/status`, `PATCH /api/incidents/:id/assign`
+- Dashboard: `GET /api/dashboard`
+- Orders: `GET /api/orders`, `POST /api/orders`, `PATCH /api/orders/:id/status`, `POST /api/orders/:id/assign`
+- Riders: `GET /api/riders`, `PATCH /api/riders/:id/location`
+- Alerts: `GET /api/alerts`, `PATCH /api/alerts/:id`
 
-The mobile app stores the access token in Expo SecureStore and sends it as a Bearer token to protected Nexus endpoints.
+The mobile app stores the access token in Expo SecureStore and sends it as a Bearer token to protected endpoints.
 
 ## Expo Go LAN setup
 

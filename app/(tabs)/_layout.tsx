@@ -8,7 +8,7 @@ export default function TabLayout() {
       headerShown: false,
       tabBarActiveTintColor: colors.purple600,
       tabBarInactiveTintColor: colors.muted,
-      tabBarStyle: { height: 72, paddingTop: 7, paddingBottom: 7, borderTopColor: colors.border, backgroundColor: colors.surface },
+      tabBarStyle: { height: 72, paddingTop: 12, paddingBottom: 4, borderTopColor: colors.border, backgroundColor: colors.surface },
       tabBarLabelStyle: { fontSize: 9, fontWeight: '800' },
     }}>
       <Tabs.Screen name="index" options={{ title: 'Command', tabBarIcon: ({ color, size }) => <Ionicons name="grid" color={color} size={size} /> }} />
