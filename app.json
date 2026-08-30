@@ -16,6 +16,17 @@
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#4C1D95"
+      },
+      "package": "com.john11101.cushyaccessnexus",
+      "permissions": [
+        "INTERNET",
+        "ACCESS_NETWORK_STATE"
+      ]
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "7304c2e7-807b-4166-90a4-13ce909fe89b"
       }
     }
   }
