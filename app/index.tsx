@@ -9,6 +9,7 @@ import {
   View,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import { Link } from 'expo-router';
 
 const API_BASE = 'https://cushyaccessbackend-1.onrender.com';
 
@@ -29,7 +30,7 @@ const formatCurrency = (value: unknown) => {
   return Number.isFinite(numberValue) ? `₦${numberValue.toLocaleString()}` : '₦0';
 };
 
-export default function App() {
+export default function Dashboard() {
   const [categoryRevenue, setCategoryRevenue] = useState<CategoryRevenue[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -126,6 +127,15 @@ export default function App() {
               Next refresh: {nextRefreshIn}s
             </Text>
           </View>
+        </View>
+
+        {/* Email Testing Link */}
+        <View style={styles.sectionCard}>
+          <Link href="/email-test" asChild>
+            <TouchableOpacity style={styles.emailTestButton}>
+              <Text style={styles.emailTestButtonText}>📧 Email Testing & Logs</Text>
+            </TouchableOpacity>
+          </Link>
         </View>
 
         {loading ? (
@@ -280,6 +290,17 @@ const styles = StyleSheet.create({
     color: '#64748b',
     fontSize: 14,
     marginTop: 4,
+  },
+  emailTestButton: {
+    backgroundColor: '#3b82f6',
+    borderRadius: 12,
+    padding: 16,
+    alignItems: 'center',
+  },
+  emailTestButtonText: {
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: '600',
   },
   summaryGrid: {
     flexDirection: 'row',
