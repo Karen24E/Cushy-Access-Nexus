@@ -1,31 +1,31 @@
 {
   "expo": {
-    "name": "cushy-diagnotics",
-    "slug": "cushy-diagnotics",
+    "name": "Cushy Access Nexus",
+    "slug": "cushy-access-nexus",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "scheme": "cushy-diagnotics",
+    "scheme": "cushy-access-nexus",
     "plugins": [
-      "expo-router",
-      "expo-status-bar"
+      "expo-router"
     ],
     "experiments": {
       "typedRoutes": true
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.cushy.accessnexus"
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#5B21B6",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.john11101.cushydiagnotics"
+      "package": "com.cushy.accessnexus"
     },
     "web": {
       "favicon": "./assets/favicon.png",
