@@ -36,4 +36,4 @@ export const Radius = {
   full: 9999,
 };
 
-export const API_BASE = 'https://cushyaccessbackend-1.onrender.com';
+export const API_BASE = process.env.EXPO_PUBLIC_API_BASE || 'https://cushyaccessbackend.onrender.com';

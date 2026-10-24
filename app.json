@@ -1,14 +1,16 @@
 {
   "expo": {
     "name": "Cushy Access Nexus",
-    "slug": "cushy-access-nexus",
+    "slug": "cushy-diagnotics",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "scheme": "cushy-access-nexus",
     "plugins": [
-      "expo-router"
+      "expo-router",
+      "expo-dev-client",
+      "expo-notifications"
     ],
     "experiments": {
       "typedRoutes": true

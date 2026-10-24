@@ -11,6 +11,9 @@ import {
   View,
 } from 'react-native';
 import { Colors, Spacing, Radius, API_BASE } from '../src/constants/theme';
+import { useAuth } from '../src/context/AuthContext';
+
+const EMAIL_TEST_ENDPOINT = `${API_BASE}/monitoring/email/test`;
 
 type EmailLog = {
   id?: string;
@@ -29,11 +32,33 @@ type FilterOptions = {
   dateTo?: string;
 };
 
+function formatResponseBody(body: string): string {
+  if (!body.trim()) return '(empty response)';
+  try {
+    return JSON.stringify(JSON.parse(body), null, 2);
+  } catch {
+    return body;
+  }
+}
+
+function getResponseSummary(body: string, status: number): string {
+  if (!body.trim()) return `HTTP ${status}; the endpoint returned no response body.`;
+  try {
+    const payload = JSON.parse(body) as Record<string, unknown>;
+    const detail = payload.message ?? payload.status ?? payload.detail ?? payload.error;
+    return typeof detail === 'string' ? detail : JSON.stringify(payload);
+  } catch {
+    return body.trim();
+  }
+}
+
 export default function EmailTestScreen() {
-  const [email, setEmail] = useState('');
+  const { user } = useAuth();
   const [sending, setSending] = useState(false);
   const [sendError, setSendError] = useState<string | null>(null);
   const [sendSuccess, setSendSuccess] = useState(false);
+  const [pushStatus, setPushStatus] = useState<string | null>(null);
+  const [backendResponse, setBackendResponse] = useState<string | null>(null);
 
   const [logs, setLogs] = useState<EmailLog[]>([]);
   const [loadingLogs, setLoadingLogs] = useState(false);
@@ -43,29 +68,86 @@ export default function EmailTestScreen() {
   const [showFilters, setShowFilters] = useState(false);
 
   const sendTestEmail = async () => {
-    if (!email.trim()) {
-      Alert.alert('Error', 'Please enter an email address');
+    const recipient = user?.email?.trim();
+    if (!recipient) {
+      Alert.alert('Email unavailable', 'Sign in again so the app can use the email saved to your account.');
       return;
     }
 
     setSending(true);
     setSendError(null);
     setSendSuccess(false);
+    setPushStatus(null);
+    setBackendResponse(null);
+    const responseDetails: string[] = [];
 
     try {
-      const response = await fetch(`${API_BASE}/monitoring/email/test`, {
+      const response = await fetch(EMAIL_TEST_ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.trim() }),
+        body: JSON.stringify({ email: recipient }),
       });
 
+      const emailResponseBody = await response.text();
+      console.log('Email test backend response:', {
+        status: response.status,
+        body: emailResponseBody,
+      });
+      responseDetails.push(
+        `Email endpoint — HTTP ${response.status}\n${formatResponseBody(emailResponseBody)}`,
+      );
+      setBackendResponse(responseDetails.join('\n\n'));
+
       if (!response.ok) {
-        throw new Error(`Failed to send test email. Status: ${response.status}`);
+        throw new Error(`Failed to send test email (HTTP ${response.status}).`);
       }
 
-      await response.json();
       setSendSuccess(true);
-      setEmail('');
+
+      try {
+        if (!user?.accessToken) {
+          throw new Error('Sign in again to enable remote phone notifications.');
+        }
+        console.log('Sending push notification to current user:', {
+          url: `${API_BASE}/api/v1/notifications/send-me`,
+          recipient,
+          userId: user.id,
+        });
+
+        const pushResponse = await fetch(`${API_BASE}/api/v1/notifications/send-me`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'cushy-access-key': `Bearer ${user.accessToken}`,
+          },
+          body: JSON.stringify({
+            title: 'Email notification sent',
+            body: `Email endpoint response for ${recipient}: ${getResponseSummary(emailResponseBody, response.status)}`.slice(0, 500),
+            data: { type: 'EMAIL_TEST' },
+          }),
+        });
+
+        console.log('Send-me push response status:', pushResponse.status);
+        const pushResponseBody = await pushResponse.text();
+        responseDetails.push(
+          `Push endpoint — HTTP ${pushResponse.status}\n${formatResponseBody(pushResponseBody)}`,
+        );
+        setBackendResponse(responseDetails.join('\n\n'));
+        let pushResult: { sent?: number; message?: string } = {};
+        try {
+          pushResult = JSON.parse(pushResponseBody) as { sent?: number; message?: string };
+        } catch {
+          pushResult.message = pushResponseBody;
+        }
+        if (!pushResponse.ok) {
+          throw new Error(pushResult.message || `Push request failed (HTTP ${pushResponse.status}).`);
+        }
+        setPushStatus(pushResult.sent
+          ? 'Phone push sent to your registered device.'
+          : 'Email request accepted, but no phone token is registered. Reopen the app and allow notification permission.');
+      } catch (error) {
+        setPushStatus(`Email request accepted, but phone push failed: ${error instanceof Error ? error.message : 'Please try again.'}`);
+      }
       loadEmailLogs();
       setTimeout(() => setSendSuccess(false), 3000);
     } catch (error) {
@@ -142,19 +224,12 @@ export default function EmailTestScreen() {
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.sectionCard}>
-          <Text style={styles.sectionTitle}>Send Test Email</Text>
-
-          <Text style={styles.label}>Email Address</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Enter email address"
-            placeholderTextColor={Colors.textMuted}
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoCorrect={false}
-          />
+          <Text style={styles.sectionTitle}>Send Email Notification</Text>
+          <Text style={styles.label}>Signup email</Text>
+          <View style={styles.recipientBox}>
+            <Text style={styles.recipientText}>{user?.email || 'No signed-in email found'}</Text>
+          </View>
+          <Text style={styles.recipientHint}>The notification email will be sent to the address saved with your account.</Text>
 
           {sendError && (
             <View style={styles.errorBox}>
@@ -164,7 +239,18 @@ export default function EmailTestScreen() {
 
           {sendSuccess && (
             <View style={styles.successBox}>
-              <Text style={styles.successText}>✓ Test email sent successfully!</Text>
+              <Text style={styles.successText}>✓ Email endpoint accepted the request.</Text>
+            </View>
+          )}
+          {pushStatus && (
+            <View style={styles.pushStatusBox}>
+              <Text style={styles.pushStatusText}>{pushStatus}</Text>
+            </View>
+          )}
+          {backendResponse && (
+            <View style={styles.responseBox}>
+              <Text style={styles.responseTitle}>Backend response</Text>
+              <Text selectable style={styles.responseText}>{backendResponse}</Text>
             </View>
           )}
 
@@ -176,7 +262,7 @@ export default function EmailTestScreen() {
             {sending ? (
               <ActivityIndicator color={Colors.white} />
             ) : (
-              <Text style={styles.buttonText}>Send Test Email</Text>
+              <Text style={styles.buttonText}>Send to my signup email</Text>
             )}
           </TouchableOpacity>
         </View>
@@ -330,6 +416,16 @@ const styles = StyleSheet.create({
     color: Colors.text,
     marginBottom: 12,
   },
+  recipientBox: {
+    backgroundColor: Colors.offWhite,
+    borderWidth: 1.5,
+    borderColor: Colors.border,
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 8,
+  },
+  recipientText: { color: Colors.text, fontSize: 14, fontWeight: '600' },
+  recipientHint: { color: Colors.textSecondary, fontSize: 12, marginBottom: 12 },
   button: {
     backgroundColor: Colors.primary,
     borderRadius: 8,
@@ -359,6 +455,18 @@ const styles = StyleSheet.create({
     borderColor: '#BBF7D0',
   },
   successText: { color: Colors.success, fontSize: 13, fontWeight: '500' },
+  pushStatusBox: { backgroundColor: Colors.offWhite, borderRadius: 8, padding: 12, marginBottom: 12 },
+  pushStatusText: { color: Colors.textSecondary, fontSize: 13 },
+  responseBox: {
+    backgroundColor: '#F3F4F6',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: Colors.borderLight,
+  },
+  responseTitle: { color: Colors.text, fontSize: 13, fontWeight: '700', marginBottom: 8 },
+  responseText: { color: Colors.textSecondary, fontSize: 12, fontFamily: 'monospace' },
   refreshButton: { paddingHorizontal: 12, paddingVertical: 6 },
   refreshButtonText: { color: Colors.primary, fontSize: 14, fontWeight: '600' },
   filterToggle: { paddingVertical: 8 },

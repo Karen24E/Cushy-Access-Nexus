@@ -22,6 +22,9 @@ export default function SignupScreen() {
   const { signup } = useAuth();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [mobile, setMobile] = useState('');
+  const [callingCode, setCallingCode] = useState('+234');
+  const [countryCode, setCountryCode] = useState('NG');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -34,12 +37,15 @@ export default function SignupScreen() {
   const handleSignup = async () => {
     setError(null);
     setLoading(true);
-    const result = await signup(name, email, password);
-    setLoading(false);
-    if (result.ok) {
-      router.replace('/(tabs)/home');
-    } else {
-      setError(result.error || 'Signup failed');
+    try {
+      const result = await signup(name, email, password, mobile, callingCode, countryCode);
+      if (result.ok) {
+        router.replace('/(tabs)/home');
+      } else {
+        setError(result.error || 'Signup failed');
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -77,6 +83,36 @@ export default function SignupScreen() {
             keyboardType="email-address"
             autoCapitalize="none"
             autoCorrect={false}
+          />
+
+          <Text style={styles.label}>Mobile Number</Text>
+          <View style={styles.phoneRow}>
+            <TextInput
+              style={[styles.input, styles.phoneCodeInput]}
+              placeholder="+234"
+              placeholderTextColor={Colors.textMuted}
+              value={callingCode}
+              onChangeText={setCallingCode}
+              keyboardType="phone-pad"
+            />
+            <TextInput
+              style={[styles.input, styles.phoneNumberInput]}
+              placeholder="8012345678"
+              placeholderTextColor={Colors.textMuted}
+              value={mobile}
+              onChangeText={setMobile}
+              keyboardType="phone-pad"
+            />
+          </View>
+          <Text style={styles.countryHint}>Country ISO code (for example NG, US, or GB)</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="NG"
+            placeholderTextColor={Colors.textMuted}
+            value={countryCode}
+            onChangeText={(value) => setCountryCode(value.toUpperCase())}
+            autoCapitalize="characters"
+            maxLength={2}
           />
 
           <Text style={styles.label}>Password</Text>
@@ -171,6 +207,10 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: Colors.text,
   },
+  phoneRow: { flexDirection: 'row', gap: 8 },
+  phoneCodeInput: { width: 92 },
+  phoneNumberInput: { flex: 1 },
+  countryHint: { color: Colors.textMuted, fontSize: 12, marginTop: 6 },
   errorBox: {
     backgroundColor: '#FEF2F2',
     borderRadius: Radius.sm,

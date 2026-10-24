@@ -41,6 +41,14 @@ export default function ProfileScreen() {
         </View>
       </View>
 
+      <TouchableOpacity
+        style={styles.pushTestBtn}
+        onPress={() => router.push('/notifications')}
+        activeOpacity={0.85}
+      >
+        <Text style={styles.pushTestText}>View push token / test push</Text>
+      </TouchableOpacity>
+
       <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout} activeOpacity={0.85}>
         <Text style={styles.logoutText}>Sign Out</Text>
       </TouchableOpacity>
@@ -111,6 +119,14 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     alignItems: 'center',
   },
+  pushTestBtn: {
+    backgroundColor: Colors.primary,
+    borderRadius: Radius.md,
+    paddingVertical: 16,
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  pushTestText: { color: Colors.white, fontWeight: '700', fontSize: 15 },
   logoutText: {
     color: Colors.error,
     fontWeight: '700',

@@ -31,6 +31,10 @@ export default function RootLayout() {
           }}
         />
         <Stack.Screen
+          name="notifications"
+          options={{ title: 'Remote Push Test', headerBackTitle: 'Back' }}
+        />
+        <Stack.Screen
           name="qcommerce"
           options={{ title: 'Q-Commerce', headerBackTitle: 'Back' }}
         />
