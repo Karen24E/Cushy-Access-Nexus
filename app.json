@@ -1,7 +1,9 @@
+
 {
   "expo": {
+    "owner": "olorioluwa",
     "name": "Cushy Access Nexus",
-    "slug": "cushy-diagnotics",
+    "slug": "cushy-access-nexus-karen",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -10,7 +12,8 @@
     "plugins": [
       "expo-router",
       "expo-dev-client",
-      "expo-notifications"
+      "expo-notifications",
+      "expo-updates"
     ],
     "experiments": {
       "typedRoutes": true
@@ -34,9 +37,18 @@
       "bundler": "metro"
     },
     "extra": {
+      "router": {},
       "eas": {
-        "projectId": "683c8761-f047-43bd-a79f-59fb3403984d"
+        "projectId": "2d51af34-bf9b-47d3-96c3-b81cb5b7268c"
       }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/2d51af34-bf9b-47d3-96c3-b81cb5b7268c",
+      "checkAutomatically": "ON_LOAD",
+      "fallbackToCacheTimeout": 0
     }
   }
 }

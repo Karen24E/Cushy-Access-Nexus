@@ -55,3 +55,45 @@ The app uses Expo push tokens (the `ExponentPushToken[...]` or `ExpoPushToken[..
 - Expo SDK 54 + Expo Router
 - React Native
 - TypeScript
+
+## Expo EAS Over-the-Air (OTA) updates
+
+This project is configured to use `expo-updates` with the existing EAS project ID. The app checks for a compatible update on launch and uses the cached bundle if an update is not immediately available. OTA updates apply to JavaScript, app screens, and compatible assets; changes to native dependencies, native code, permissions, or native app configuration require a new EAS build and installation.
+
+### One-time setup
+
+1. Use Node.js supported by your Expo SDK and install dependencies:
+   ```bash
+   npm install
+   npx expo install expo-updates
+   ```
+   `expo-updates` must match the installed Expo SDK. If Expo selects a different compatible version, keep the version selected by `npx expo install`.
+2. Sign in to the Expo account that owns the EAS project and verify the project:
+   ```bash
+   npx eas-cli login
+   npx eas-cli project:info
+   ```
+3. Build and install a new native app after adding `expo-updates` (existing installs without the native update module cannot receive OTA updates):
+   ```bash
+   npx eas-cli build --platform android --profile preview
+   ```
+   For a store/release build use `--profile production` instead.
+
+### Publish an update
+
+Publish JavaScript/UI changes to the matching channel:
+
+```bash
+# Preview testers
+npx eas-cli update --channel preview --message "Describe the change"
+
+# Production users
+npx eas-cli update --channel production --message "Describe the change"
+```
+
+Only publish to `production` after testing the update on `preview`. The installed app's channel and `runtimeVersion` must match the published update. With `runtimeVersion` set to `appVersion`, bump `expo.version` in `app.json` and create a new native build whenever you intentionally change the app version or need to distribute native changes. Do not publish OTA updates that expect native modules absent from the installed binary.
+
+### Rollback / troubleshooting
+
+Use the EAS dashboard's Updates page to inspect deployments and roll back a bad update, or publish a corrected update to the same channel. Test on a development/preview build before production. OTA updates do not update the web deployment; deploy web changes separately.
+
